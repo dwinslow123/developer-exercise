@@ -94,9 +94,11 @@
                 <div>
                   { renderQuotes }
                   <ul id="page-numbers">{ renderPageNumbers }</ul>
+                  <div>
+                    Choose between filtering between movie quotes and game quotes: 
                     <input type="button" value="movies" onClick={ this.handleThemeClick } />
                     <input type="button" value="games" onClick={ this.handleThemeClick } />
-                    { console.log(this.state.theme) }
+                  </div>
                 </div>
               )
             }
