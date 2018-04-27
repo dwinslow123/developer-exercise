@@ -30,7 +30,10 @@
                   this.setState({
                     quotesList: quotesList,
                   });
-                });
+                })
+                .catch(err => {
+                  return err;
+                })
               }
 
             handlePageClick = (e) => {
@@ -43,7 +46,6 @@
               this.setState({
                 theme: e.target.value,
               });
-              console.log(this.state.theme);
             }
 
             componentDidMount() {
@@ -56,7 +58,7 @@
               const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
               const movieQuotes = quotesList.filter(quote => quote.theme === 'movies');
               const gameQuotes = quotesList.filter(quote => quote.theme === 'games');
-              const currentQuotes = quotesList.slice(indexOfFirstQuote, indexOfLastQuote);
+              const currentQuotes = this.state.theme === '' ? quotesList.slice(indexOfFirstQuote, indexOfLastQuote) : this.state.theme === 'movies' ? movieQuotes.slice(indexOfFirstQuote, indexOfLastQuote) : gameQuotes.slice(indexOfFirstQuote, indexOfLastQuote);
 
               const renderQuotes = currentQuotes.map((quote, i) => {
                 return (
@@ -92,9 +94,9 @@
                 <div>
                   { renderQuotes }
                   <ul id="page-numbers">{ renderPageNumbers }</ul>
-                  <button onClick={ this.handleThemeClick }>Movies</button>
-                  <button>Games</button>
-                  <button>All</button>
+                    <input type="button" value="movies" onClick={ this.handleThemeClick } />
+                    <input type="button" value="games" onClick={ this.handleThemeClick } />
+                    { console.log(this.state.theme) }
                 </div>
               )
             }
