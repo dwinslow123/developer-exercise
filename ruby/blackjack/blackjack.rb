@@ -49,6 +49,51 @@ class Hand
   def initialize
     @cards = []
   end
+
+  def hit_me(card)
+    @cards << card
+  end
+
+  def total
+    if @cards.any?(&:ace?)
+      guess = 0
+      @cards.each do |card|
+        if card.value.is_a? Array
+          guess += card.value[0]
+        else
+          gues += card.value
+        end
+      end
+
+      if guess > 21
+        guess = 0
+        @cards.each do |card|
+          if card.value.is_a? Array
+            guess += card.value[1]
+          else
+            guess += card.value
+          end
+        end
+        guess
+      else
+        guess
+      end
+    else
+      sum = 0
+      @cards.each do |card|
+        sum += card.value
+      end
+      sum
+    end
+  end
+
+  def busted
+    value > 21
+  end
+
+  def blackjack
+    value == 21
+  end
 end
 
 require 'test/unit'
@@ -81,7 +126,7 @@ class DeckTest < Test::Unit::TestCase
   
   def test_dealt_card_should_not_be_included_in_playable_cards
     card = @deck.deal_card
-    assert(@deck.playable_cards.include?(card))
+    assert(!@deck.playable_cards.include?(card))
   end
 
   def test_shuffled_deck_has_52_playable_cards

@@ -8,6 +8,8 @@
       <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
       <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
       <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Playfair+Display" rel="stylesheet">
+      <link rel="stylesheet" href="styles.css"/>
     </head>
     <body>
       <div id="quotes"></div>
@@ -19,10 +21,12 @@
               currentPage: 1,
               quotesPerPage: 15,
               theme: '',
+              search: '',
             }
 
-            getQuotes = (e) => {
-              fetch('https://gist.githubusercontent.com/anonymous/8f61a8733ed7fa41c4ea/raw/1e90fd2741bb6310582e3822f59927eb535f6c73/quotes.json')
+            getQuotes = () => {
+              const quotesURL = 'https://gist.githubusercontent.com/anonymous/8f61a8733ed7fa41c4ea/raw/1e90fd2741bb6310582e3822f59927eb535f6c73/quotes.json';
+              fetch(quotesURL)
                 .then((response) => {
                   return response.json();
                 })
@@ -48,6 +52,24 @@
               });
             }
 
+            updateSearch = (e) => {
+              this.setState({
+                search: e.target.value
+              })
+            }
+
+            handleSubmit = (e) => {
+              e.preventDefault();
+              this.setState({
+                search: '',
+                quotesList: this.state.quotesList.filter(quote => quote.quote.includes(this.state.search))
+              })
+            }
+
+            handleRefresh = () => {
+              this.getQuotes();
+            }
+
             componentDidMount() {
               this.getQuotes();
             };
@@ -58,23 +80,23 @@
               const indexOfFirstQuote = indexOfLastQuote - quotesPerPage;
               const movieQuotes = quotesList.filter(quote => quote.theme === 'movies');
               const gameQuotes = quotesList.filter(quote => quote.theme === 'games');
-              const currentQuotes = this.state.theme === '' ? quotesList.slice(indexOfFirstQuote, indexOfLastQuote) : this.state.theme === 'movies' ? movieQuotes.slice(indexOfFirstQuote, indexOfLastQuote) : gameQuotes.slice(indexOfFirstQuote, indexOfLastQuote);
+              // currentQuotes determines which quotes to render on the screen if the state of theme is set to movies, games, or none.
+              const currentQuotes = this.state.theme === '' ? quotesList.slice(indexOfFirstQuote, indexOfLastQuote): this.state.theme === 'movies' ? movieQuotes.slice(indexOfFirstQuote, indexOfLastQuote) : gameQuotes.slice(indexOfFirstQuote, indexOfLastQuote);
 
               const renderQuotes = currentQuotes.map((quote, i) => {
                 return (
-                  <div key={ i }>
-                    <ul>
-                      <li>Quote: "{ quote.quote }"</li>
-                      <li>Context: { quote.context }</li>
-                      <li>Source: { quote.source }</li>
-                      <li>Theme: { quote.theme }</li>
+                  <div className="quote-card" key={ i }>
+                    <ul className="quote-list">
+                      <li id="quote">"{ quote.quote }"</li>
+                      <li id="source">~ { quote.source },  { quote.context }</li>
+                      <li id="theme">{ quote.theme }</li>
                     </ul>
                   </div>
                 )
               });
 
               const pageNumbers = [];
-                for (let i = 0; i <= Math.ceil(quotesList.length / quotesPerPage); i++) {
+                for (let i = 1; i <= Math.ceil(quotesList.length / quotesPerPage); i++) {
                   pageNumbers.push(i);
                 }
 
@@ -91,13 +113,45 @@
               });
 
               return (
-                <div>
+                <div className="main-container">
+                  <h2>Check out some of our favorite quotes!</h2>
+                  <div className="searchbar">
+                      <h3>Search here to see if we've included your favorite!</h3>
+                    <form className="search-form" onSubmit={ this.handleSubmit }>
+                      <input
+                        type="search"
+                        value={ this.state.search }
+                        onChange={ this.updateSearch }
+                        placeholder="eg...'That's thirty minutes away. I'll be there in ten.'"
+                      />
+                    </form>
+                  <button
+                    type="button"
+                    value="Refresh"
+                    onClick={ this.handleRefresh }
+                  >Refresh</button>
+                  </div>
+                  <div className="filter-buttons">
+                    <h4>Or filter by movie quotes or game quotes</h4>
+                    <button
+                      type="button"
+                      value="movies"
+                      onClick={ this.handleThemeClick }
+                    >Movie Quotes</button>
+                    <button
+                      type="button"
+                      value="games"
+                      onClick={ this.handleThemeClick }
+                    >Game Quotes</button>
+                    <button
+                      type="button"
+                      value=""
+                      onClick={ this.handleThemeClick }
+                    >All quotes</button>
+                  </div>
+                  <div className="quotes-list">
                   { renderQuotes }
                   <ul id="page-numbers">{ renderPageNumbers }</ul>
-                  <div>
-                    Choose between filtering between movie quotes and game quotes: 
-                    <input type="button" value="movies" onClick={ this.handleThemeClick } />
-                    <input type="button" value="games" onClick={ this.handleThemeClick } />
                   </div>
                 </div>
               )
